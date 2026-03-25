@@ -90,17 +90,7 @@ def make_key(row):
         - Return None if either is missing/invalid
         - Return f"{vendor}_{pickup}"
     """
-    try:
-        vendor = str(int(row["VendorID"]))
-        pickup = str(row["tpep_pickup_datetime"])
- 
-        if not vendor or not pickup or pickup in ("nan", "NaT", "None"):
-            return None
- 
-        return f"{vendor}_{pickup}"
- 
-    except (ValueError, TypeError):
-        return None
+    
 
 
 def preprocess(filepath):
@@ -128,32 +118,4 @@ def preprocess(filepath):
         - Append (key, value) to records list
         - Log final count and return records
     """
-    df = load_data(filepath)
-    df = clean_data(df)
- 
-    records = []
-    skipped = 0
- 
-    for _, row in df.iterrows():
-        key = make_key(row)
- 
-        if key is None:
-            skipped += 1
-            continue
- 
-        value = {
-            "tpep_dropoff_datetime": row.get("tpep_dropoff_datetime"),
-            "passenger_count":       int(row.get("passenger_count", 0)),
-            "trip_distance":         row.get("trip_distance"),
-            "PULocationID":          row.get("PULocationID"),
-            "DOLocationID":          row.get("DOLocationID"),
-            "payment_type":          row.get("payment_type"),
-            "fare_amount":           row.get("fare_amount"),
-            "tip_amount":            row.get("tip_amount"),
-            "total_amount":          row.get("total_amount"),
-        }
- 
-        records.append((key, value))
- 
-    logger.info(f"Preprocessed: {len(records):,} valid records | {skipped:,} skipped")
-    return records
+    pass
