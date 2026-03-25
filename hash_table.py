@@ -138,13 +138,17 @@ class HashTable:
         Returns:
             dict or None: Trip metadata if found, None if key does not exist.
 
-        TODO (Helen):
-            - Hash the key to get bucket index
-            - Walk the linked list at that bucket
-            - Return node.value when node.key == key
-            - Return None if end of chain is reached without a match
         """
-        pass
+        
+        index = self._hash(key)
+        current = self.buckets[index]
+
+        while current is not None:
+            if current.key == key:
+                return current.value
+            current = current.next
+
+        return None
 
     def delete(self, key):
         """
