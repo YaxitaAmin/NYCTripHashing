@@ -57,10 +57,7 @@ class HashTable:
             - Initialize self.size, self.buckets (list of None * size)
             - Set self.total_items = 0 and self.collision_count = 0
         """
-        self.size = size
-        self.buckets = [None] * size
-        self.total_items = 0
-        self.collision_count = 0
+        pass
 
     def _hash(self, key):
         """
@@ -148,15 +145,7 @@ class HashTable:
             - Return node.value when node.key == key
             - Return None if end of chain is reached without a match
         """
-        index = self._hash(key)
-        current = self.buckets[index]
-
-        while current is not None:
-            if current.key == key:
-                return current.value
-            current = current.next
-
-        return None
+        pass
 
     def delete(self, key):
         """
@@ -178,28 +167,7 @@ class HashTable:
             - Decrement total_items, return True
             - Return False if key not found
         """
-        index = self._hash(key)
-        current = self.buckets[index]
-        previous = None
-
-        while current is not None:
-            if current.key == key:
-                if previous is None:
-
-                    # deleting head node
-                    self.buckets[index] = current.next
-                else:
-                    
-                    # deleting middle/end node
-                    previous.next = current.next
-
-                self.total_items -= 1
-                return True
-
-            previous = current
-            current = current.next
-
-        return False
+        pass
 
     def get_stats(self):
         """

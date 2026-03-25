@@ -38,7 +38,7 @@ def load_data(filepath):
         - Log how many rows were loaded
         - Raise ValueError for unsupported formats
     """
-    
+    pass
 
 
 def clean_data(df):

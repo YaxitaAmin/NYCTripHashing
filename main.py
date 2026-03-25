@@ -142,7 +142,6 @@ def run_demo(filepath):
 
 
 if __name__ == "__main__":
-    # Default dataset path — override via command-line: python main.py <filepath>
     default_path = "data/yellow_tripdata_2024-03.parquet"
     filepath = sys.argv[1] if len(sys.argv) > 1 else default_path
     run_demo(filepath)
