@@ -37,7 +37,24 @@ def build_index(filepath):
         - Print elapsed time and total records indexed
         - Return the table
     """
-    pass
+    print("\nloading and indexing dataset, please wait...")
+    start = time.time()
+
+    try:
+        records = preprocess(filepath)
+    except Exception as e:
+        print(f"error during preprocessing: {e}")
+        raise
+
+    table = HashTable(size=10007)
+
+    for key, value in records:
+        table.insert(key, value)
+
+    elapsed = time.time() - start
+    print(f"done. indexed {len(records):,} records in {elapsed:.2f} seconds")
+
+    return table
 
 
 def query(table, vendor_id, pickup_datetime):
@@ -63,7 +80,19 @@ def query(table, vendor_id, pickup_datetime):
         - If not found   → print not found message
         - Return result
     """
-    pass
+    key = f"{vendor_id}_{pickup_datetime}"
+    print(f"\nsearching for key: {key}")
+
+    result = table.lookup(key)
+
+    if result is not None:
+        print("trip found\n")
+        for field, val in result.items():
+            print(f"  {field:<26} {val}")
+    else:
+        print("no trip found for this key.")
+
+    return result
 
 
 def print_stats(table):
