@@ -38,7 +38,15 @@ def load_data(filepath):
         - Log how many rows were loaded
         - Raise ValueError for unsupported formats
     """
-    
+    if filepath.endswith(".parquet"):
+        df = pd.read_parquet(filepath)
+    elif filepath.endswith(".csv"):
+        df = pd.read_csv(filepath)
+    else:
+        raise ValueError("Unsupported file format. Use .csv or .parquet")
+
+    logger.info(f"Loaded {len(df):,} rows from {filepath}")
+    return df
 
 
 def clean_data(df):
@@ -68,7 +76,58 @@ def clean_data(df):
         - Drop duplicate rows, log count
         - Return reset_index(drop=True) cleaned df
     """
-    pass
+    original_len = len(df)
+
+    # drop rows missing key fields
+    before = len(df)
+    df = df.dropna(subset=["VendorID", "tpep_pickup_datetime"])
+    dropped = before - len(df)
+    logger.info(f"Dropped {dropped:,} rows missing VendorID or pickup datetime")
+
+    # parse datetime
+    df["tpep_pickup_datetime"] = pd.to_datetime(
+        df["tpep_pickup_datetime"], errors="coerce"
+    )
+
+    # drop rows where datetime parsing failed
+    before = len(df)
+    df = df.dropna(subset=["tpep_pickup_datetime"])
+    dropped = before - len(df)
+    logger.info(f"Dropped {dropped:,} rows with invalid pickup datetime")
+
+    # standardize datetime format
+    df["tpep_pickup_datetime"] = df["tpep_pickup_datetime"].dt.strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    # fix trip_distance (<= 0 -> None)
+    if "trip_distance" in df.columns:
+        invalid_dist = (df["trip_distance"] <= 0).sum()
+        df.loc[df["trip_distance"] <= 0, "trip_distance"] = None
+        logger.info(f"Fixed {invalid_dist:,} invalid trip_distance values")
+
+    # fix fare_amount and total_amount (negative -> None)
+    for col in ["fare_amount", "total_amount"]:
+        if col in df.columns:
+            invalid_vals = (df[col] < 0).sum()
+            df.loc[df[col] < 0, col] = None
+            logger.info(f"Fixed {invalid_vals:,} negative values in {col}")
+
+    # fill missing passenger_count with 0
+    if "passenger_count" in df.columns:
+        missing_passengers = df["passenger_count"].isna().sum()
+        df["passenger_count"] = df["passenger_count"].fillna(0)
+        logger.info(f"Filled {missing_passengers:,} missing passenger_count values")
+
+    # drop duplicates
+    before = len(df)
+    df = df.drop_duplicates()
+    dropped = before - len(df)
+    logger.info(f"Dropped {dropped:,} duplicate rows")
+
+    logger.info(f"Cleaned dataset: {original_len:,} → {len(df):,} rows")
+
+    return df.reset_index(drop=True)
 
 
 def make_key(row):
