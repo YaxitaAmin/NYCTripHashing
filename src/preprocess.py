@@ -189,30 +189,27 @@ def preprocess(filepath):
     """
     df = load_data(filepath)
     df = clean_data(df)
- 
-    records = []
-    skipped = 0
- 
-    for _, row in df.iterrows():
-        key = make_key(row)
- 
-        if key is None:
-            skipped += 1
-            continue
- 
-        value = {
-            "tpep_dropoff_datetime": row.get("tpep_dropoff_datetime"),
-            "passenger_count":       int(row.get("passenger_count", 0)),
-            "trip_distance":         row.get("trip_distance"),
-            "PULocationID":          row.get("PULocationID"),
-            "DOLocationID":          row.get("DOLocationID"),
-            "payment_type":          row.get("payment_type"),
-            "fare_amount":           row.get("fare_amount"),
-            "tip_amount":            row.get("tip_amount"),
-            "total_amount":          row.get("total_amount"),
-        }
- 
-        records.append((key, value))
- 
-    logger.info(f"Preprocessed: {len(records):,} valid records | {skipped:,} skipped")
+
+    # build composite keys vectorized (fast — no iterrows)
+    df["key"] = df["VendorID"].astype(int).astype(str) + "_" + df["tpep_pickup_datetime"]
+
+    # drop any rows where key is invalid
+    before = len(df)
+    df = df.dropna(subset=["key"])
+    skipped = before - len(df)
+
+    # select only the value columns we care about
+    value_cols = [
+        "tpep_dropoff_datetime", "passenger_count", "trip_distance",
+        "PULocationID", "DOLocationID", "payment_type",
+        "fare_amount", "tip_amount", "total_amount"
+    ]
+
+    # cast passenger_count to int
+    df["passenger_count"] = df["passenger_count"].astype(int)
+
+    # build (key, value) pairs vectorized
+    records = list(zip(df["key"], df[value_cols].to_dict("records")))
+
+    logger.info(f"preprocessed: {len(records):,} valid records | {skipped:,} skipped")
     return records
