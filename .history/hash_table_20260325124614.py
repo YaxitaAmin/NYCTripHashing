@@ -105,7 +105,6 @@ class HashTable:
             - If bucket is occupied (collision) → prepend node, increment collision_count
             - Always increment total_items (unless it was a duplicate update)
         """
-        #assuming helen wrote initialize buckets :)
         index=self._hash(key)
         current=self.buckets[index]
         

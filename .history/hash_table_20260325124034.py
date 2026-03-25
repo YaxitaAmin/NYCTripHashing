@@ -79,11 +79,7 @@ class HashTable:
             - Suggested BASE = 31 or 37 (both are prime)
             - Return final hash_val
         """
-        BASE=31
-        hash_val=0
-        for char in key:
-            hash_val=(hash_val*BASE+ ord(char))% self.size
-        return hash_val
+        pass
 
     def insert(self, key, value):
         """
@@ -105,27 +101,8 @@ class HashTable:
             - If bucket is occupied (collision) → prepend node, increment collision_count
             - Always increment total_items (unless it was a duplicate update)
         """
-        #assuming helen wrote initialize buckets :)
-        index=self._hash(key)
-        current=self.buckets[index]
-        
-        #chechking duplicate keys
-        while current:
-            if current.key==key:
-                current.value=value
-                return
-            current=current.next
-        
-        #collison case- if bucket exist node
-        if self.buckets[index] is not None:
-            self.collision_count+=1
-            
-        #new node to chain
-        new_node = Node(key, value)
-        new_node.next = self.buckets[index]
-        self.buckets[index] = new_node
-        self.total_items += 1
-        
+        pass
+
     def lookup(self, key):
         """
         Retrieve the value associated with a given key.

@@ -105,7 +105,6 @@ class HashTable:
             - If bucket is occupied (collision) → prepend node, increment collision_count
             - Always increment total_items (unless it was a duplicate update)
         """
-        #assuming helen wrote initialize buckets :)
         index=self._hash(key)
         current=self.buckets[index]
         
@@ -121,11 +120,9 @@ class HashTable:
             self.collision_count+=1
             
         #new node to chain
-        new_node = Node(key, value)
-        new_node.next = self.buckets[index]
-        self.buckets[index] = new_node
-        self.total_items += 1
-        
+        new_node=None(key, value)
+        new
+
     def lookup(self, key):
         """
         Retrieve the value associated with a given key.
