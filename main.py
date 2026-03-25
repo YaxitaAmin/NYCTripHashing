@@ -46,7 +46,7 @@ def build_index(filepath):
         print(f"error during preprocessing: {e}")
         raise
 
-    table = HashTable(size=10007)
+    table = HashTable(size=4000037)
 
     for key, value in records:
         table.insert(key, value)
