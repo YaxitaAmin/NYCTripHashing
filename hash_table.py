@@ -139,7 +139,7 @@ class HashTable:
             dict or None: Trip metadata if found, None if key does not exist.
 
         """
-        
+
         index = self._hash(key)
         current = self.buckets[index]
 
@@ -162,15 +162,29 @@ class HashTable:
 
         Returns:
             bool: True if deleted successfully, False if key not found.
-
-        TODO (Helen):
-            - Hash the key to get bucket index
-            - Traverse the chain tracking previous node
-            - Rewire pointers to remove the matching node
-            - Decrement total_items, return True
-            - Return False if key not found
         """
-        pass
+        index = self._hash(key)
+        current = self.buckets[index]
+        previous = None
+
+        while current is not None:
+            if current.key == key:
+                if previous is None:
+
+                    # deleting head node
+                    self.buckets[index] = current.next
+                else:
+                    
+                    # deleting middle/end node
+                    previous.next = current.next
+
+                self.total_items -= 1
+                return True
+
+            previous = current
+            current = current.next
+
+        return False
 
     def get_stats(self):
         """
