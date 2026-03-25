@@ -12,7 +12,7 @@
 import sys
 import time
 from src.hash_table import HashTable
-from src.preprocessing import preprocess
+from src.preprocess import preprocess
 
 
 def build_index(filepath):
