@@ -80,16 +80,7 @@ def print_stats(table):
             collision_count, empty_buckets,
             max_chain_len, avg_chain_len
     """
-    stats = table.get_stats()
- 
-    print("\nhash table statistics\n")
-    print(f"total records indexed: {stats['total_items']:,}")
-    print(f"table size (buckets): {stats['table_size']:,}")
-    print(f"load factor: {stats['load_factor']}")
-    print(f"collision count: {stats['collision_count']:,}")
-    print(f"  empty buckets: {stats['empty_buckets']:,}")
-    print(f"max chain length {stats['max_chain_len']}")
-    print(f"avg chain length: {stats['avg_chain_len']}")
+    
 
 
 def run_demo(filepath):
@@ -112,33 +103,7 @@ def run_demo(filepath):
         - Call print_stats(table)
         - Print a closing message
     """
-    print("nyc taxi trip hash indexer")
-    print("authors : yaxita amin & helen li")
-    print("course  : msml606 hw3 extra credit")
-    print("dataset : nyc tlc yellow taxi march 2024")
- 
-    # step 1: build the index
-    table = build_index(filepath)
- 
-    # step 2: sample queries using real keys from the dataset
-    print("\nsample queries\n")
- 
-    # row 0: VendorID=1, pickup=2024-03-01 00:18:51
-    query(table, 1, "2024-03-01 00:18:51")
- 
-    # row 2: VendorID=2, pickup=2024-03-01 00:09:22
-    query(table, 2, "2024-03-01 00:09:22")
- 
-    # row 9: VendorID=1, pickup=2024-03-01 00:21:43
-    query(table, 1, "2024-03-01 00:21:43")
- 
-    # one that won't exist — shows graceful not-found handling
-    query(table, 6, "2024-03-01 00:00:00")
- 
-    # step 3: stats
-    print_stats(table)
- 
-    print("\ndemo complete.")
+    pass
 
 
 if __name__ == "__main__":
