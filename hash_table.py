@@ -52,12 +52,11 @@ class HashTable:
         Args:
             size (int): Number of buckets. Default is 10007 (a prime number
                         chosen to reduce clustering and spread keys evenly).
-
-        TODO (Helen): 
-            - Initialize self.size, self.buckets (list of None * size)
-            - Set self.total_items = 0 and self.collision_count = 0
         """
-        pass
+        self.size = size
+        self.buckets = [None] * size
+        self.total_items = 0
+        self.collision_count = 0
 
     def _hash(self, key):
         """
