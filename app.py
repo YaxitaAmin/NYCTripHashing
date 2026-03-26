@@ -1,16 +1,14 @@
 # app.py
-# Authors: Yaxita Amin & Helen Li
-# MSML606 HW3 Extra Credit — NYC Taxi Trip Hash Indexer
-# Description: Streamlit demo interface for the hash table indexer.
+# Description: Streamlit demo interface — designed for a non-CS audience.
 
 import streamlit as st
 import pandas as pd
+import pickle
 import time
 import sys
 import os
 
-# allow imports from src/
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(_file_))
 
 from src.hash_table import HashTable
 from src.preprocess import preprocess
@@ -18,152 +16,82 @@ from src.preprocess import preprocess
 
 # page config
 st.set_page_config(
-    page_title="nyc taxi hash indexer",
+    page_title="nyc taxi trip finder",
     page_icon="🚕",
     layout="wide"
 )
 
-st.title("nyc taxi trip hash indexer")
-st.caption("msml606 hw3 extra credit  |  yaxita amin & helen li  |  dataset: nyc tlc yellow taxi march 2024")
+st.title("🚕 nyc taxi trip finder")
+st.caption("built by Helen Li and Yaxita Amin   |   UMD")
 
+st.markdown("""
+### what does this app do?
+imagine you have a filing cabinet with *3.5 million taxi trip records* from new york city.
 
-# load and cache the hash table
-@st.cache_resource(show_spinner=False)
-def load_index(filepath):
-    """Build and cache the hash table so it only loads once."""
-    records = preprocess(filepath)
-    table = HashTable(size=10007)
-    for key, value in records:
-        table.insert(key, value)
-    return table, records
+finding one specific trip by flipping through every page would take forever.
 
-FILEPATH = "data/yellow_tripdata_2024-03.parquet"
+this app uses a technique called *hashing* — think of it like a super smart index at the back of a book.
+instead of searching page by page, we jump directly to the right page in milliseconds.
+
+---
+""")
+
+# load and cache
+FILEPATH    = "data/yellow_tripdata_2024-03.parquet"
+PICKLE_PATH = "data/taxi_index.pkl"
 
 if not os.path.exists(FILEPATH):
-    st.error(f"dataset not found at {FILEPATH}. please download it from the nyc tlc website and place it in the data/ folder.")
+    st.error("dataset not found. please place yellow_tripdata_2024-03.parquet in the data/ folder.")
     st.stop()
 
-with st.spinner("loading and indexing 3.5 million records into hash table..."):
+@st.cache_resource(show_spinner=False)
+def load_index(filepath):
+    if os.path.exists(PICKLE_PATH):
+        with open(PICKLE_PATH, "rb") as f:
+            table, records = pickle.load(f)
+        return table, records
+
+    # 🔨 First time only — preprocess and build the hash table
+    records = preprocess(filepath)
+    table = HashTable(size=4000037)
+    for key, value in records:
+        table.insert(key, value)
+
+
+    with open(PICKLE_PATH, "wb") as f:
+        pickle.dump((table, records), f)
+
+    return table, records
+
+# Show different spinner message depending on whether pickle exists
+spinner_msg = (
+    "loading saved index — this takes just a few seconds..."
+    if os.path.exists(PICKLE_PATH)
+    else "first time setup — building index from 3.5M records, ~90 seconds, only happens once..."
+)
+
+with st.spinner(spinner_msg):
     start = time.time()
     table, records = load_index(FILEPATH)
     elapsed = time.time() - start
 
-st.success(f"indexed {len(records):,} records in {elapsed:.2f} seconds")
+st.success(f"ready! indexed {len(records):,} taxi trips in {elapsed:.1f} seconds.")
 
 st.divider()
 
-
-# TABS
-tab1, tab2, tab3, tab4 = st.tabs(["trip lookup", "hash table stats", "sample records", "bucket distribution"])
-
-
-# tab 1: trip lookup 
-with tab1:
-    st.subheader("look up a trip")
-    st.write("enter a vendor id and pickup datetime to retrieve trip details directly from the hash table.")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        vendor_id = st.selectbox("vendor id", options=[1, 2, 6], help="vendor ids present in march 2024 dataset")
-
-    with col2:
-        pickup_input = st.text_input(
-            "pickup datetime",
-            value="2024-03-01 00:18:51",
-            help="format: YYYY-MM-DD HH:MM:SS"
-        )
-
-    if st.button("search"):
-        key = f"{vendor_id}_{pickup_input}"
-        st.write(f"searching for key: {key}")
-
-        result = table.lookup(key)
-
-        if result:
-            st.success("trip found")
-            result_df = pd.DataFrame(result.items(), columns=["field", "value"])
-            st.dataframe(result_df, use_container_width=True, hide_index=True)
-        else:
-            st.warning("no trip found for this key. try a different vendor id or datetime.")
-
-    st.divider()
-
-    # quick sample keys to try
-    st.write("*sample keys to try* (real records from dataset):")
-    sample_keys = {
-        "vendor 1 — row 0": ("1", "2024-03-01 00:18:51"),
-        "vendor 2 — row 2": ("2", "2024-03-01 00:09:22"),
-        "vendor 1 — row 9": ("1", "2024-03-01 00:21:43"),
-        "vendor 2 — row 5": ("2", "2024-03-01 00:50:42"),
-    }
-    for label, (vid, pdt) in sample_keys.items():
-        st.code(f"vendor id: {vid}   pickup: {pdt}   →   key: {vid}_{pdt}", language=None)
+# helper: safely format a value for display
+# This is the KEY fix — converts any value to
+# its correct readable string, preventing
+# numeric fields from being shown as timestamps.
+def format_value(v):
+    if v is None or (isinstance(v, float) and pd.isna(v)):
+        return "N/A"
+    # If it's already a plain number, just return it — do NOT touch pd.to_datetime
+    if isinstance(v, (int, float)):
+        return round(v, 2) if isinstance(v, float) else v
+    # Only format as datetime if it's actually a datetime type
+    if isinstance(v, pd.Timestamp):
+        return v.strftime("%Y-%m-%d %H:%M:%S")
+    return str(v)
 
 
-# tab 2: hash table stats 
-with tab2:
-    st.subheader("hash table performance statistics")
-    st.write("these stats show how well the hash function distributes 3.5m records across 10,007 buckets.")
-
-    stats = table.get_stats()
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("total records", f"{stats['total_items']:,}")
-    col2.metric("load factor", stats['load_factor'])
-    col3.metric("collisions", f"{stats['collision_count']:,}")
-
-    col4, col5, col6 = st.columns(3)
-    col4.metric("table size (buckets)", f"{stats['table_size']:,}")
-    col5.metric("empty buckets", f"{stats['empty_buckets']:,}")
-    col6.metric("max chain length", stats['max_chain_len'])
-
-    st.metric("avg chain length", stats['avg_chain_len'])
-
-    st.divider()
-    st.write("*what does load factor mean?*")
-    st.write("load factor = total records / number of buckets. a load factor above 1.0 means some buckets have chains (collisions). our table has 10,007 buckets holding ~3.5m records, so chains are expected and handled gracefully via chaining.")
-
-
-# tab 3: sample records
-with tab3:
-    st.subheader("sample records from dataset")
-    st.write("these are the first 20 records loaded into the hash table.")
-
-    sample_data = []
-    for key, value in records[:20]:
-        row = {"key": key}
-        row.update(value)
-        sample_data.append(row)
-
-    sample_df = pd.DataFrame(sample_data)
-    st.dataframe(sample_df, use_container_width=True, hide_index=True)
-
-    st.divider()
-    st.write(f"*total records indexed:* {len(records):,}")
-    st.write("*key format:* VendorID_tpep_pickup_datetime  e.g. 2_2024-03-01 00:09:22")
-
-
-# tab 4: bucket distribution 
-with tab4:
-    st.subheader("bucket chain length distribution")
-    st.write("this chart shows how many buckets have chains of each length — a measure of how evenly the hash function distributes records.")
-
-    # compute chain length distribution
-    chain_dist = {}
-    for bucket in table.buckets:
-        length = 0
-        current = bucket
-        while current:
-            length += 1
-            current = current.next
-        chain_dist[length] = chain_dist.get(length, 0) + 1
-
-    dist_df = pd.DataFrame(
-        sorted(chain_dist.items()),
-        columns=["chain length", "number of buckets"]
-    )
-
-    st.bar_chart(dist_df.set_index("chain length"), use_container_width=True)
-    st.dataframe(dist_df, use_container_width=True, hide_index=True)
-    st.write("chain length 0 = empty buckets. length 1 = no collision. length 2+ = collisions resolved via chaining.")
