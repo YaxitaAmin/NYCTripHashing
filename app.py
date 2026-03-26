@@ -101,3 +101,27 @@ with tab1:
         st.code(f"vendor id: {vid}   pickup: {pdt}   →   key: {vid}_{pdt}", language=None)
 
 
+# tab 2: hash table stats 
+with tab2:
+    st.subheader("hash table performance statistics")
+    st.write("these stats show how well the hash function distributes 3.5m records across 10,007 buckets.")
+
+    stats = table.get_stats()
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("total records", f"{stats['total_items']:,}")
+    col2.metric("load factor", stats['load_factor'])
+    col3.metric("collisions", f"{stats['collision_count']:,}")
+
+    col4, col5, col6 = st.columns(3)
+    col4.metric("table size (buckets)", f"{stats['table_size']:,}")
+    col5.metric("empty buckets", f"{stats['empty_buckets']:,}")
+    col6.metric("max chain length", stats['max_chain_len'])
+
+    st.metric("avg chain length", stats['avg_chain_len'])
+
+    st.divider()
+    st.write("*what does load factor mean?*")
+    st.write("load factor = total records / number of buckets. a load factor above 1.0 means some buckets have chains (collisions). our table has 10,007 buckets holding ~3.5m records, so chains are expected and handled gracefully via chaining.")
+
+
