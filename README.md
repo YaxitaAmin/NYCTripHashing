@@ -26,6 +26,7 @@ The project demonstrates how core data structures perform on real-world, noisy d
 ## Project Structure
 
 
+```text
 NYCTripHashing/
 ├── src/
 │   ├── hash_table.py       # Core hash table logic (chaining + statistics)
@@ -38,7 +39,6 @@ NYCTripHashing/
 ├── main.py                 # Command-line demo and sample queries
 ├── requirements.txt        # Python dependencies
 └── README.md               # Project documentation
-
 
 ---
 
