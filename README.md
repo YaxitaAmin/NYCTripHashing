@@ -1,7 +1,7 @@
 # NYC Taxi Trip Hash Indexer
 
 *MSML606 HW3 Extra Credit — Spring 2026*  
-Authors:  Helen Li  & Yaxita Amin 
+Authors:  Helen Li (UID: 188466200)  & Yaxita Amin (UID: 121292483)
 UMD
 
 ---
