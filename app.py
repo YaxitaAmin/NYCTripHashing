@@ -144,3 +144,26 @@ with tab3:
     st.write("*key format:* VendorID_tpep_pickup_datetime  e.g. 2_2024-03-01 00:09:22")
 
 
+# tab 4: bucket distribution 
+with tab4:
+    st.subheader("bucket chain length distribution")
+    st.write("this chart shows how many buckets have chains of each length — a measure of how evenly the hash function distributes records.")
+
+    # compute chain length distribution
+    chain_dist = {}
+    for bucket in table.buckets:
+        length = 0
+        current = bucket
+        while current:
+            length += 1
+            current = current.next
+        chain_dist[length] = chain_dist.get(length, 0) + 1
+
+    dist_df = pd.DataFrame(
+        sorted(chain_dist.items()),
+        columns=["chain length", "number of buckets"]
+    )
+
+    st.bar_chart(dist_df.set_index("chain length"), use_container_width=True)
+    st.dataframe(dist_df, use_container_width=True, hide_index=True)
+    st.write("chain length 0 = empty buckets. length 1 = no collision. length 2+ = collisions resolved via chaining.")
