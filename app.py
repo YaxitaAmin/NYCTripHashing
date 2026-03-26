@@ -125,3 +125,22 @@ with tab2:
     st.write("load factor = total records / number of buckets. a load factor above 1.0 means some buckets have chains (collisions). our table has 10,007 buckets holding ~3.5m records, so chains are expected and handled gracefully via chaining.")
 
 
+# tab 3: sample records
+with tab3:
+    st.subheader("sample records from dataset")
+    st.write("these are the first 20 records loaded into the hash table.")
+
+    sample_data = []
+    for key, value in records[:20]:
+        row = {"key": key}
+        row.update(value)
+        sample_data.append(row)
+
+    sample_df = pd.DataFrame(sample_data)
+    st.dataframe(sample_df, use_container_width=True, hide_index=True)
+
+    st.divider()
+    st.write(f"*total records indexed:* {len(records):,}")
+    st.write("*key format:* VendorID_tpep_pickup_datetime  e.g. 2_2024-03-01 00:09:22")
+
+
