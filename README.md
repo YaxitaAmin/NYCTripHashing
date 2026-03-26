@@ -27,20 +27,17 @@ The project demonstrates how core data structures perform on real-world, noisy d
 
 
 NYCTripHashing/
-│
 ├── src/
-│   ├── hash_table.py        # core hash table + chaining + stats
-│   └── preprocess.py        # data loading, cleaning, key normalization
-│
+│   ├── hash_table.py       # Core hash table logic (chaining + statistics)
+│   └── preprocess.py       # Data loading, cleaning, and key normalization
 ├── data/
-│   └── yellow_tripdata_2024-03.parquet   # dataset (not included in repo)
-│
-├── app.py                   # Streamlit UI 
-├── main.py                  # command-line demo and sample queries
+│   └── (yellow_tripdata_2024-03.parquet) # Dataset (not tracked in Git)
 ├── proposal/
-│   └── proposal.pdf         # original submitted proposal
-├── requirements.txt
-└── README.md
+│   └── proposal.pdf        # Original project proposal
+├── app.py                  # Streamlit UI / Web Dashboard
+├── main.py                 # Command-line demo and sample queries
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
 
 
 ---
