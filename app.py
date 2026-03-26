@@ -8,7 +8,7 @@ import time
 import sys
 import os
 
-sys.path.insert(0, os.path.dirname(_file_))
+sys.path.insert(0, os.path.dirname(__file__))
 
 from src.hash_table import HashTable
 from src.preprocess import preprocess
