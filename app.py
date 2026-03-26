@@ -37,4 +37,67 @@ def load_index(filepath):
         table.insert(key, value)
     return table, records
 
+FILEPATH = "data/yellow_tripdata_2024-03.parquet"
+
+if not os.path.exists(FILEPATH):
+    st.error(f"dataset not found at {FILEPATH}. please download it from the nyc tlc website and place it in the data/ folder.")
+    st.stop()
+
+with st.spinner("loading and indexing 3.5 million records into hash table..."):
+    start = time.time()
+    table, records = load_index(FILEPATH)
+    elapsed = time.time() - start
+
+st.success(f"indexed {len(records):,} records in {elapsed:.2f} seconds")
+
+st.divider()
+
+
+# TABS
+tab1, tab2, tab3, tab4 = st.tabs(["trip lookup", "hash table stats", "sample records", "bucket distribution"])
+
+
+# tab 1: trip lookup 
+with tab1:
+    st.subheader("look up a trip")
+    st.write("enter a vendor id and pickup datetime to retrieve trip details directly from the hash table.")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        vendor_id = st.selectbox("vendor id", options=[1, 2, 6], help="vendor ids present in march 2024 dataset")
+
+    with col2:
+        pickup_input = st.text_input(
+            "pickup datetime",
+            value="2024-03-01 00:18:51",
+            help="format: YYYY-MM-DD HH:MM:SS"
+        )
+
+    if st.button("search"):
+        key = f"{vendor_id}_{pickup_input}"
+        st.write(f"searching for key: {key}")
+
+        result = table.lookup(key)
+
+        if result:
+            st.success("trip found")
+            result_df = pd.DataFrame(result.items(), columns=["field", "value"])
+            st.dataframe(result_df, use_container_width=True, hide_index=True)
+        else:
+            st.warning("no trip found for this key. try a different vendor id or datetime.")
+
+    st.divider()
+
+    # quick sample keys to try
+    st.write("*sample keys to try* (real records from dataset):")
+    sample_keys = {
+        "vendor 1 — row 0": ("1", "2024-03-01 00:18:51"),
+        "vendor 2 — row 2": ("2", "2024-03-01 00:09:22"),
+        "vendor 1 — row 9": ("1", "2024-03-01 00:21:43"),
+        "vendor 2 — row 5": ("2", "2024-03-01 00:50:42"),
+    }
+    for label, (vid, pdt) in sample_keys.items():
+        st.code(f"vendor id: {vid}   pickup: {pdt}   →   key: {vid}_{pdt}", language=None)
+
 
