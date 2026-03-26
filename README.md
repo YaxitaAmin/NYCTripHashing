@@ -39,6 +39,7 @@ NYCTripHashing/
 ├── main.py                 # Command-line demo and sample queries
 ├── requirements.txt        # Python dependencies
 └── README.md               # Project documentation
+```
 
 ---
 
